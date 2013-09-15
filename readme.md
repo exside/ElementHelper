@@ -69,30 +69,30 @@ Note: The "Template Variable Access Control" setting must be set to "Yes" for th
 * "input_properties" An array of input properties related to the rendering of the input of this TV
 * "output_properties" An array of output properties related to the rendering of the output of this TV
 
-Configuration
--------------
+Configuration / System Settings
+-------------------------------
 
 The following configuration options can be found by going to System Settings within your MODX manager and selecting the elementhelper namespace.
-*Automatically Remove Elements: Allow ElementHelper to remove elements if you delete their source files (this will also remove TVs when you remove them from the TV JSON file).
-*Automatically Create Elements: Allow ElementHelper to create static elements/files from elements that are already existing in the database (but are not found in the elements physical directory/path). At the time this only works for Chunks, Snippets, Plugins and Templates.
-*Create Elements Categories: Comma separated list (with or without spaces) of categories for which ElementHelper should create the static files for. By default (if "Automatically Create Events" is set to true) ElementHelper just creates static files for elements that are in NO category, e.g. "0", if you want to specify categories but also include the elements without category then the first item of the list should be 0, eg. "0,FormIt,Articles".
-*Root Path: This is the path all the other relative element paths get appended to. Defaults to {base_path}. If you have your MODx core outsite of the webroot (which you should, see MODx advanced installation for more information) and you want to have your elements folder stored in the core directory, you need to change this to {core_path}. Additionally you could also specify another MODx path constant here, e.g. {assets_path} if you want to store your elements in the assets folder (then you don't need to specify assets/elements/chunks/ but just elements/chunks/ as the path/to/your/modxinstallation/assets/ is already prepended).
-*Chunk Path: Set the path to you chunk elements
-*Chunk Filetype: The filetype for chunks. Defaults to "tpl".
-*Plugin Path: Set the path to you plugin elements
-*Plugin Filetype: The filetype for plugins. Defaults to "php".
-*Plugin Add Events: Checks for plugin events behind the string defined in "Plugin Events Key" and attaches the plugin to these events automatically.
-*Plugin Check Events: Checks if the event(s) specified in the plugin files comment block is a valid one, e.g. exists in the current installations event table (this helps preventing the creation of unwanted new events due to typos etc.) and if not the event is ignored. Disable this if you use custom events.
-*Plugin Events Key: String to identify plugin events inside the opening comment block. Defaults to @Events.
-*Snippet Path: Set the path to you snippet elements
-*Snippet Filetype: The filetype for snippets. Defaults to "php".
-*Template Path: Set the path to you template elements
-*Template Filetype: The filetype for templates. Defaults to "tpl".
-*Template Variables JSON Path: Set the path to your template variable JSON file
-*Template Variable Access Control: Allow ElementHelper to give template variables access to the templates you set in the template variable json file. Note: Turning this on will remove template variable access from all templates unless specified in the template variable json file.
-*Element History: Keeps track of elements created with ElementHelper. You shouldn't ever need to edit this
-*Elements media source: Set a media source for your static elements
-*Description key: Set a key that will be used to find descriptions for your element files, defaults to @Description.
-*Default Description: Set a default description for elements created with ElementHelper
-*Usergroups: Set usergroups that ElementHelper should run for, defaults to Administrator
-*Debug: Activate/deactivate logging of debug messages into the MODx error log
+* Automatically Remove Elements: Allow ElementHelper to remove elements if you delete their source files (this will also remove TVs when you remove them from the TV JSON file).
+* Automatically Create Elements: Allow ElementHelper to create static elements/files from elements that are already existing in the database (but are not found in the elements physical directory/path). At the time this only works for Chunks, Snippets, Plugins and Templates.
+* Create Elements Categories: Comma separated list (with or without spaces) of categories for which ElementHelper should create the static files for. By default (if "Automatically Create Events" is set to true) ElementHelper just creates static files for elements that are in NO category, e.g. "0", if you want to specify categories but also include the elements without category then the first item of the list should be 0, eg. "0,FormIt,Articles".
+* Root Path: This is the path all the other relative element paths get appended to. Defaults to {base_path}. If you have your MODx core outsite of the webroot (which you should, see MODx advanced installation for more information) and you want to have your elements folder stored in the core directory, you need to change this to {core_path}. Additionally you could also specify another MODx path constant here, e.g. {assets_path} if you want to store your elements in the assets folder (then you don't need to specify assets/elements/chunks/ but just elements/chunks/ as the path/to/your/modxinstallation/assets/ is already prepended).
+* Chunk Path: Set the path to you chunk elements
+* Chunk Filetype: The filetype for chunks. Defaults to "tpl".
+* Plugin Path: Set the path to you plugin elements
+* Plugin Filetype: The filetype for plugins. Defaults to "php".
+* Plugin Add Events: Checks for plugin events behind the string defined in "Plugin Events Key" and attaches the plugin to these events automatically.
+* Plugin Check Events: Checks if the event(s) specified in the plugin files comment block is a valid one, e.g. exists in the current installations event table (this helps preventing the creation of unwanted new events due to typos etc.) and if not the event is ignored. Disable this if you use custom events.
+* Plugin Events Key: String to identify plugin events inside the opening comment block. Defaults to @Events.
+* Snippet Path: Set the path to you snippet elements
+* Snippet Filetype: The filetype for snippets. Defaults to "php".
+* Template Path: Set the path to you template elements
+* Template Filetype: The filetype for templates. Defaults to "tpl".
+* Template Variables JSON Path: Set the path to your template variable JSON file
+* Template Variable Access Control: Allow ElementHelper to give template variables access to the templates you set in the template variable json file. Note: Turning this on will remove template variable access from all templates unless specified in the template variable json file.
+* Element History: Keeps track of elements created with ElementHelper. You shouldn't ever need to edit this
+* Elements media source: Set a media source for your static elements
+* Description key: Set a key that will be used to find descriptions for your element files, defaults to @Description.
+* Default Description: Set a default description for elements created with ElementHelper
+* Usergroups: Set usergroups that ElementHelper should run for, defaults to Administrator
+* Debug: Activate/deactivate logging of debug messages into the MODx error log
