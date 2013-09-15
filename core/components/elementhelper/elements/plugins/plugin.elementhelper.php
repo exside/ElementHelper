@@ -206,7 +206,7 @@ if ($modx->user->isMember($usergroups) && $element_helper instanceof $classname)
                 {
                     if ($debug)
                     {
-                        $modx->log(modX::LOG_LEVEL_INFO, $log_prefix . 'nothing changed! Last modified file is from: ' . strftime('%d.%m.%Y %H:%M:%S', $modx->cacheManager->get($cacheid . '.' . $element_type['class_name'], $cacheoptions)));
+                        $modx->log(modX::LOG_LEVEL_INFO, $log_prefix . 'nothing changed! Last mod for ' . $element_type['class_name'] . ': ' . strftime('%d.%m.%Y %H:%M:%S', $modx->cacheManager->get($cacheid . '.' . $element_type['class_name'], $cacheoptions)));
                     }
                 }
             }
@@ -294,7 +294,7 @@ if ($modx->user->isMember($usergroups) && $element_helper instanceof $classname)
             {
                 if ($debug)
                 {
-                    $modx->log(modX::LOG_LEVEL_INFO, $log_prefix . 'nothing changed! Last mod: ' . strftime('%d.%m.%Y %H:%M:%S', $modx->cacheManager->get($cacheid . '.modTemplateVar', $cacheoptions)));
+                    $modx->log(modX::LOG_LEVEL_INFO, $log_prefix . 'nothing changed! Last mod for modTemplateVar: ' . strftime('%d.%m.%Y %H:%M:%S', $modx->cacheManager->get($cacheid . '.modTemplateVar', $cacheoptions)));
                 }
             }
         }
@@ -321,15 +321,9 @@ if ($modx->user->isMember($usergroups) && $element_helper instanceof $classname)
     }
     else
     {
-        // system event OnSiteRefresh triggered, deleting ElementHelper cache partition
-        foreach ($element_types as $element_type)
-        {
-            $modx->cacheManager->delete($cacheid . '.' . $element_type['class_name'], $cacheoptions);
-        }
-
-        if ($debug)
-        {
-            $modx->log(modX::LOG_LEVEL_INFO, '[' . $classname . '] Deleted ElementHelper cache files!');
-        }
+        // system event OnSiteRefresh triggered, deleting ElementHelper cache partition        
+        $modx->cacheManager->clean($cacheoptions);
+        // log to the console
+        $modx->log(modX::LOG_LEVEL_INFO, '[' . $classname . '] Cache files deleted!');
     }
 }

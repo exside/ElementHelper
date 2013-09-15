@@ -1,5 +1,6 @@
 Element Helper 1.4.0
 ====================================
+- (JayCarney) input_properties fix and added support for MIGX TV creation
 - (exside) Added settings and functionality for automatic plugin event creation
 - (exside) Added system settings and functionality to create static files/elements from already (in db) existing elements
 - (exside) Added system settings for element filetypes
