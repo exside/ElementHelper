@@ -12,4 +12,9 @@ $events[2]->set('event', 'OnManagerPageInit');
 $events[2]->set('priority', 0);
 $events[2]->set('propertyset', 0);
 
+$events[3] = $modx->newObject('modPluginEvent');
+$events[3]->set('event', 'OnSiteRefresh');
+$events[3]->set('priority', 0);
+$events[3]->set('propertyset', 0);
+
 return $events;

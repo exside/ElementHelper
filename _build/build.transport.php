@@ -7,7 +7,7 @@ set_time_limit(0);
 
 define('PKG_NAME', 'ElementHelper');
 define('PKG_NAME_LOWER', 'elementhelper');
-define('PKG_VERSION', '1.3.2');
+define('PKG_VERSION', '1.4.0');
 
 $root = dirname(dirname(__FILE__)) . '/';
 
@@ -36,7 +36,7 @@ $modx->setLogTarget('ECHO');
 $modx->loadClass('transport.modPackageBuilder', '', false, true);
 
 $builder = new modPackageBuilder($modx);
-$builder->createPackage(PKG_NAME_LOWER, PKG_VERSION);
+$builder->createPackage(PKG_NAME, PKG_VERSION);
 $builder->registerNamespace(PKG_NAME_LOWER, false, true, '{core_path}components/' . PKG_NAME_LOWER . '/');
 
 // Setup the package category

@@ -1,14 +1,23 @@
 <?php
-
 class ElementHelper
 {
     private $modx;
     public $element_history;
 
-    function __construct(modX $modx)
-    {
-        $this->modx = $modx;
+    function __construct(modX &$modx, array $config = array()) {
+        $this->modx =& $modx;
         $this->history = array();
+
+        // merge passed config options with default ones, the passed onse overwrite the defaults
+        $this->config = array_merge(array(
+            'debug'         => $this->modx->getOption('elementhelper.debug'),
+            'version'       => '1.4.0'
+        ), $config);
+
+        if ($this->config['debug'])
+        {
+            $this->modx->log(modX::LOG_LEVEL_INFO, '[' . __METHOD__ . '] Class successfully constructed!');
+        }
     }
 
     public function create_element($element_type, $file_path, $file_type, $name)
@@ -53,6 +62,89 @@ class ElementHelper
         if ($element->save())
         {
             $this->history[$element_type['class_name']][] = $name;
+
+            // if it's a plugin, check if a events key is present and add system events automatically
+            // needs to happen after saving the element/plugin
+            // people need to be careful what they add in the @Events identifier, it will add any bullshit you write there to the db
+            if ( $element_type['class_name'] === 'modPlugin' && $this->modx->getOption('elementhelper.plugin_events') )
+            {                
+                $events = $this->_get_events($content);
+                $plugin_id = $element->get('id');
+
+                // attach the events to the plugin
+                foreach ($events as $event)
+                {
+                    $plugin_event = $this->modx->getObject('modPluginEvent', array(
+                        'pluginid' => $plugin_id,
+                        'event' => $event,
+                    ));
+
+                    if ($plugin_event == null)
+                    {
+                        $plugin_event = $this->modx->newObject('modPluginEvent');
+                        $plugin_event->set('pluginid', $plugin_id);
+                        $plugin_event->set('event', $event);
+                        $plugin_event->set('priority', 0); // would be nice to make this also configurable, rarely used...but would be handy if needed
+                        $plugin_event->save();
+                    }
+                }
+            }
+        }
+    }
+
+    public function create_element_files($element_type, $categories = array())
+    {
+        // get category ids
+        $categoryids = array();
+        foreach ($categories as $category)
+        {
+            if (!is_numeric($category))
+            {
+                $categoryobj = $this->modx->getObject('modCategory', array('category' => $category));
+                $categoryids[] = $categoryobj->get('id');
+            }
+            else
+            {
+                $categoryids[] = $category;
+            }
+        }
+
+        $this->modx->log(modX::LOG_LEVEL_ERROR, '[' . __METHOD__ . '] categoryids ' . print_r($categoryids,1));
+
+        // create the element files
+        if ($elements = $this->modx->getCollection($element_type['class_name'], array('category:IN' => $categoryids)))
+        {
+            foreach ($elements as $element) {
+                // retrieve again the category name to build the correct path, bad coding but don't know better yet
+                if ($categoryobj = $this->modx->getObject('modCategory', array('id' => $element->get('category'))))
+                {
+                    $categoryname = $categoryobj->get('category');
+                }
+                else
+                {
+                    $categoryname = '';
+                }
+                
+                // first check/create the categoryfolder as the filehandler create method for files doesn't write the directory tree if not present
+                $this->modx->cacheManager->writeTree($this->modx->getOption('elementhelper.root_path') . $element_type['path'] . $categoryname . '/');
+
+                // Weirdly MODx uses a different name title for templates
+                $name_field = ($element_type['class_name'] === 'modTemplate' ? 'templatename' : 'name');
+
+                // initialize the modx fileHandler service
+                $this->modx->getService('file', 'modFileHandler');
+
+                // create the file object and do something with it
+                $fileobj = $this->modx->file->make($this->modx->getOption('elementhelper.root_path') . $element_type['path'] . $categoryname . '/' . $element->get($name_field) . '.' . $element_type['file_type']);
+                
+                if (!$fileobj->exists())
+                {
+                    if (!$fileobj->create($element->get('content')))
+                    {
+                        $this->modx->log(modX::LOG_LEVEL_ERROR, '[' . __METHOD__ . '] file could not be written at ' . $fileobj->getPath());
+                    }
+                }
+            }
         }
     }
 
@@ -108,6 +200,103 @@ class ElementHelper
         }
     }
 
+    public function create_category($name, $parent_id)
+    {
+        $category = $this->modx->getObject('modCategory', array('category' => $name));
+
+        // If the category doesn't exist create it
+        if (!isset($category))
+        {
+            $category = $this->modx->newObject('modCategory');
+
+            $category->set('category', $name);
+        }
+
+        $category->set('parent', $parent_id);
+
+        $category->save();
+    }
+
+    // Get the files recursively from the passed directory path
+    public function get_files($directory_path, $log = true)
+    {
+        $timestart = $this->modx->getMicroTime();
+        $file_list = array();
+
+        if (is_dir($directory_path))
+        {
+            $directory = opendir($directory_path);
+
+            // Get a list of files from the element types directory
+            while (($item = readdir($directory)) !== false)
+            {   
+                if ($item !== '.' && $item !== '..')
+                {
+                    $item_path = $directory_path . $item;
+
+                    if (is_file($item_path))
+                    {
+                        $file_list[] = $item_path;
+                    }
+                    else
+                    {
+                        $file_list = array_merge($this->get_files($item_path . '/', false), $file_list);
+                    }
+                }
+            }
+
+            closedir($directory);
+        }
+
+        if ($this->config['debug'] && $log)
+        { 
+            //$this->modx->log(modX::LOG_LEVEL_INFO, '[' . __METHOD__ . '] The following files were found in .  ' . $directory_path . ': ' . print_r($file_list,1));
+            $timeend = $this->modx->getMicroTime();
+            //$this->modx->log(modX::LOG_LEVEL_INFO, '[' . __METHOD__ . '] executed in ' . sprintf('%2.4f s', $timeend - $timestart));
+        }
+
+        return $file_list;
+    }
+
+    // Get last modified date of folders recursively
+    public function get_directory_lastmod($directory_path, $log = true)
+    {
+        $timestart = $this->modx->getMicroTime();
+        $modified = array();
+
+        if (is_dir($directory_path))
+        {
+            $modified[] = filemtime($directory_path);
+
+            $directory = opendir($directory_path);
+
+            // Get a list of files from the element types directory
+            while (($item = readdir($directory)) !== false)
+            {   
+                if ($item !== '.' && $item !== '..')
+                {
+                    $item_path = $directory_path . $item;
+
+                    if (is_dir($item_path))
+                    {
+                        $modified = array_merge($this->get_directory_lastmod($item_path . '/', false), $modified);
+                    }
+                }
+            }
+
+            closedir($directory);
+        }
+
+        if ($this->config['debug'] && $log)
+        { 
+            //$this->modx->log(modX::LOG_LEVEL_INFO, '[' . __METHOD__ . '] Directory structure lastmod for ' . $directory_path . ': ' . print_r($modified,1));
+            $timeend = $this->modx->getMicroTime();
+            //$this->modx->log(modX::LOG_LEVEL_INFO, '[' . __METHOD__ . '] executed in ' . sprintf('%2.4f s', $timeend - $timestart));
+        }
+
+        return $modified;
+    }
+
     private function _add_template_access($tv_name, $template_name)
     {
         $tv = $this->modx->getObject('modTemplateVar', array('name' => $tv_name));
@@ -142,23 +331,6 @@ class ElementHelper
         }
     }
 
-    public function create_category($name, $parent_id)
-    {
-        $category = $this->modx->getObject('modCategory', array('category' => $name));
-
-        // If the category doesn't exist create it
-        if (!isset($category))
-        {
-            $category = $this->modx->newObject('modCategory');
-
-            $category->set('category', $name);
-        }
-
-        $category->set('parent', $parent_id);
-
-        $category->save();
-    }
-
     private function _get_comments($file_contents)
     {
         $tokens = token_get_all($file_contents);
@@ -178,7 +350,7 @@ class ElementHelper
 
     private function _get_description($file_contents)
     {
-        $description = $this->modx->getOption('elementhelper.default_description');
+        $description = $this->modx->getOption('elementhelper.description_default');
         $comments = $this->_get_comments($file_contents);
 
         foreach ($comments as $comment)
@@ -188,7 +360,7 @@ class ElementHelper
             foreach($comment_lines as $comment_line)
             {
                 // get string to search for description from system setting
-                if (preg_match('/' . $this->modx->getOption('elementhelper.descriptionkey') . ' (.*)/', $comment_line, $match))
+                if (preg_match('/' . $this->modx->getOption('elementhelper.description_key') . ' (.*)/', $comment_line, $match))
                 {
                     $description = $match[1];
                 }
@@ -196,6 +368,44 @@ class ElementHelper
         }
 
         return $description;
+    }
+
+    private function _get_events($file_contents)
+    {
+        $comments = $this->_get_comments($file_contents);
+
+        foreach ($comments as $comment)
+        {
+            $comment_lines = explode("\n", $comment);
+            
+            foreach($comment_lines as $comment_line)
+            {
+                // get string to search for events from system setting
+                if (preg_match('/' . $this->modx->getOption('elementhelper.plugin_events_key') . ' (.*)/', $comment_line, $match))
+                {
+                    $events = $match[1];
+                }
+            }
+        }
+
+        // strip spaces from event names
+        $events = array_filter(array_map('trim', explode(',', $events)));
+
+        // check for valid/existing events in the MODx database events table (if checking is enabled) and filter out not existing events
+        // this prevents the errant creation of unwanted events due to typos
+        if ($this->modx->getOption('elementhelper.plugin_events_check') && !empty($events)) {
+            $modx_events = $this->modx->getCollection('modEvent');
+            $valid_events = array();
+
+            foreach ($modx_events as $modx_event) {
+                $valid_events[] = $modx_event->get('name');
+            }
+
+            // filter out all non existing events
+            $events = array_intersect($valid_events, $events);
+        }
+
+        return $events;
     }
 
     public function get_category_id($name)
