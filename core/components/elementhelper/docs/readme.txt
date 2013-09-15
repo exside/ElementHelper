@@ -33,7 +33,7 @@ Template Variables are managed using a JSON file, if you're using the default se
     "type": "text"
 }]
 
-Expanding on that example you could add an image template variable that is assigned to two templates called 'home' and 'standard_page' with the following:
+Expanding on that example you could add an image template variable and a migx template variable that are assigned to two templates called 'home' and 'standard_page' with the following:
 
 Note: The "Template Variable Access Control" setting must be set to "Yes" for the template_access feature to work. See the Configuration section for more information.
 
@@ -47,6 +47,23 @@ Note: The "Template Variable Access Control" setting must be set to "Yes" for th
     "caption": "Example Image TV",
     "type": "image",
     "template_access": ["home", "standard_page"]
+},{
+    "name": "example_migx_tv",
+    "caption": "Example MIGX TV",
+    "type": "migx",
+    "template_access": ["home", "standard_page"],
+    "input_properties": {
+        "formtabs": [{
+            "caption": "Info", "fields": [{
+                "field":"titles", "caption":"Title"
+            }]
+        }],
+        "columns": [{
+            "header": "Title", "width": "160", "sortable":"true", "dataIndex":"titles"
+        }],
+        "btntext": "Test Label",
+        "autoResourceFolders": "false"
+    }
 }]
 
 ###### Template Variable Properties
