@@ -8,8 +8,8 @@ $packagename = 'elementhelper';
 $classname = 'ElementHelper';
 
 // set up basic paths
-$packagepath = MODX_CORE_PATH . 'components/' . $packagename . '/';
-$modelpath   = $packagepath . 'model/';
+$packagepath = $modx->getOption('elementhelper.core_path', null, MODX_CORE_PATH . 'components/' . $packagename . '/');
+$classpath   = $packagepath . 'model/' . $packagename . '/';
 
 // Turn debug messages on/off
 $debug = false;
@@ -28,16 +28,15 @@ $cacheoptions = array(
     xPDO::OPT_CACHE_KEY => $packagename
 );
 
+// Initialize the class
+$element_helper = $modx->getService($packagename, $classname, $classpath);
+
 // Get the usergroups where ElementHelper should be active
 // by default only members of the Administrator user group
 $usergroups = explode(',', $modx->getOption('elementhelper.usergroups'), null, 'Administrator');
 
-if ($modx->user->isMember($usergroups))
+if ($modx->user->isMember($usergroups) && $element_helper instanceof $classname)
 {
-    $default_element_helper_core_path = $modx->getOption('core_path') . 'components/elementhelper/';
-    $element_helper_core_path = $modx->getOption('elementhelper.core_path', null, $default_element_helper_core_path);
-
-    $element_helper = $modx->getService($packagename, 'ElementHelper', $element_helper_core_path . 'model/elementhelper/');
 
     $element_types = array(
         'templates' => array(
@@ -310,4 +309,6 @@ if ($modx->user->isMember($usergroups))
         // Set logLevel back to ERROR, preventing a lot of crap getting logged
         $modx->setLogLevel(modX::LOG_LEVEL_ERROR);
     }
+} else if (!($element_helper instanceof $classname)) {
+    $modx->log(modX::LOG_LEVEL_ERROR, '[' . $classname . ' Plugin] Could not instantiate class ' . $classname . ' from ' . $classpath);
 }
