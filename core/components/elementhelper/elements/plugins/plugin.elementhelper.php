@@ -29,8 +29,8 @@ $cacheoptions = array(
 );
 
 // Get the usergroups where ElementHelper should be active
-// (usually only Administrators/Devs that can change files in the target directories)
-$usergroups = explode(',', $modx->getOption('elementhelper.usergroups'));
+// by default only members of the Administrator user group
+$usergroups = explode(',', $modx->getOption('elementhelper.usergroups'), null, 'Administrator');
 
 if ($modx->user->isMember($usergroups))
 {
