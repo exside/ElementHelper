@@ -108,7 +108,7 @@ if ($modx->user->isMember($usergroups) && $element_helper instanceof $classname)
             // Create all the templates, snippets, chunks and plugins
             foreach ($element_types as $element_type)
             {
-                $log_prefix = '[' . $packagename . '] ' . $element_type['class_name'] . ': ';
+                $log_prefix = '[' . $classname . '] ' . $element_type['class_name'] . ': ';
 
                 $file_list = get_files(MODX_BASE_PATH . $element_type['path'], $modx);
                 $file_name = array();
