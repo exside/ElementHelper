@@ -1,3 +1,6 @@
+- (exside) ElementHelper cache files are now cleared when the site cache is manually emptied (by a member of an authorized user group)
+
+
 Element Helper 1.3.3
 ====================================
 - (JayCarney) Input properties fix
