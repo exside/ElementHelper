@@ -40,6 +40,10 @@ if ($modx->user->isMember($usergroups) && $element_helper instanceof $classname)
     switch($modx->event->name)
     {
         case 'OnSiteRefresh':
+            // system event OnSiteRefresh triggered, deleting elementhelper cache partition        
+            $modx->cacheManager->clean($cacheoptions);
+            // log to the console
+            $modx->log(modX::LOG_LEVEL_INFO, '[' . $classname . '] Cache files deleted!');
             break;
 
         case 'OnManagerPageInit':
