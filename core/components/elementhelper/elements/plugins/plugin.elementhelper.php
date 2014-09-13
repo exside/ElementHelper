@@ -21,8 +21,8 @@ if ($debug)
 }
 
 // Set up native modx caching
-$cacheid = isset($settings['cacheid']) ? $settings['cacheid'] : $packagename;
-$cachetime = isset($settings['cachetime']) ? $settings['cachetime'] : 0;
+$cacheid = $packagename;
+$cachetime = 0;
 $cacheoptions = array(
     // Specify folder/partition inside the modx cache folder where cache files get saved in
     xPDO::OPT_CACHE_KEY => $packagename
