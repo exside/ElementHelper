@@ -33,7 +33,7 @@ $element_helper = $modx->getService($packagename, $classname, $classpath);
 
 // Get the usergroups where ElementHelper should be active
 // by default only members of the Administrator user group
-$usergroups = explode(',', $modx->getOption('elementhelper.usergroups'), null, 'Administrator');
+$usergroups = explode(',', $modx->getOption('elementhelper.usergroups', null, 'Administrator'));
 
 if ($modx->user->isMember($usergroups) && $element_helper instanceof $classname)
 {
@@ -311,6 +311,8 @@ if ($modx->user->isMember($usergroups) && $element_helper instanceof $classname)
                     }
                 }
             }
+
+            break;
         case 'default':
             $modx->log(modX::LOG_LEVEL_ERROR, '[' . $classname . ' Plugin] Called on non-default system event ' . $modx->event->name);
     }
