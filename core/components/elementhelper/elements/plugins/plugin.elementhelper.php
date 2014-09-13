@@ -17,7 +17,7 @@ $debug = false;
 if ($debug)
 {
     $modx->setLogLevel(modX::LOG_LEVEL_INFO);
-    $timestart = $modx->getMicroTime();
+    $tstart = microtime(true);
 }
 
 // Set up native modx caching
@@ -319,8 +319,7 @@ if ($modx->user->isMember($usergroups) && $element_helper instanceof $classname)
 
     if ($debug)
     { 
-        $timeend = $modx->getMicroTime();
-        $modx->log(modX::LOG_LEVEL_INFO, '{modPlugin}: ' . $packagename . ' executed in ' . sprintf('%2.4f s', $timeend - $timestart));
+        $modx->log(modX::LOG_LEVEL_INFO, '[modPlugin]: ' . $classname . ' executed in ' . sprintf('%2.4f s', microtime(true) - $tstart));
         
         // Set logLevel back to ERROR, preventing a lot of crap getting logged
         $modx->setLogLevel(modX::LOG_LEVEL_ERROR);
