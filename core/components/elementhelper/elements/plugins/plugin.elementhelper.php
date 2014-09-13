@@ -1,5 +1,15 @@
 <?php
+/**
+ * @description Creates elements automatically from static files.
+ * @events OnManagerPageInit, OnWebPageInit, OnSiteRefresh
+ **/
+
 $packagename = 'elementhelper';
+$classname = 'ElementHelper';
+
+// set up basic paths
+$packagepath = MODX_CORE_PATH . 'components/' . $packagename . '/';
+$modelpath   = $packagepath . 'model/';
 
 // Turn debug messages on/off
 $debug = false;
